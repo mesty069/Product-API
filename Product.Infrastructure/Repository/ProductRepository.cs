@@ -1,4 +1,7 @@
-﻿using Product.Core.Entities;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
+using Product.Core.Entities;
 using Product.Core.Interface;
 using Product.Infrastructure.Data;
 using System;
@@ -11,8 +14,120 @@ namespace Product.Infrastructure.Repository
 {
     internal class ProductRepository : GenericRepository<Products>, IProductRepository
     {
-        public ProductRepository(ApplicationDbContext context) : base(context)
+        private readonly ApplicationDbContext _context;
+        private readonly IFileProvider _fileProvider;
+        private readonly IMapper _mapper;
+
+        public ProductRepository(ApplicationDbContext context, IFileProvider fileProvider, IMapper mapper) : base(context)
         {
+            _context = context;
+            _fileProvider = fileProvider;
+            _mapper = mapper;
+        }
+
+        /// <summary>
+        /// 新增產品圖片和資料
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        public async Task<bool> AddAsync(CreateProductDto dto)
+        {
+
+            if (dto.Image is not null)
+            {
+                var root = "/images/product/";
+                var prodcutname = $"{Guid.NewGuid()}" + dto.Image.FileName;
+                if (!Directory.Exists(root))
+                {
+                    Directory.CreateDirectory(root);
+                }
+                var src = root + prodcutname;
+                var pic_info = _fileProvider.GetFileInfo(src);
+                var root_path = pic_info.PhysicalPath;
+                using (var file_streem = new FileStream(root_path, FileMode.Create))
+                {
+                    await dto.Image.CopyToAsync(file_streem);
+
+                }
+                var res = _mapper.Map<Products>(dto);
+                res.ProductPicture = src;
+                await _context.Products.AddAsync(res);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 修改產品圖片和資料
+        /// </summary>
+        /// <param name="dto"></param>
+        /// <returns></returns>
+        public async Task<bool> UpdateAsync(int id, UpdateProductDto dto)
+        {
+            var currentProduct = await _context.Products.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+            if (currentProduct is not null)
+            {
+                var src = "";
+                if (dto.Image is not null)
+                {
+                    var root = "/images/product/";
+                    var productName = $"{Guid.NewGuid()}" + dto.Image.FileName;
+                    if (!Directory.Exists(root))
+                    {
+                        Directory.CreateDirectory(root);
+                    }
+
+                    src = root + productName;
+                    var picInfo = _fileProvider.GetFileInfo(src);
+                    var rootPath = picInfo.PhysicalPath;
+                    using (var fileStream = new FileStream(rootPath, FileMode.Create))
+                    {
+                        await dto.Image.CopyToAsync(fileStream);
+                    }
+                }
+                //刪除舊圖片
+                if (!string.IsNullOrEmpty(currentProduct.ProductPicture))
+                {
+                    var picInfo = _fileProvider.GetFileInfo(currentProduct.ProductPicture);
+                    var rootPath = picInfo.PhysicalPath;
+                    System.IO.File.Delete(rootPath);
+                }
+
+                var res = _mapper.Map<Products>(dto);
+                res.ProductPicture = src;
+                res.Id = id;
+                _context.Products.Update(res);
+                await _context.SaveChangesAsync();
+
+
+                return true;
+
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// 刪除商品
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var currentproduct = await _context.Products.FindAsync(id);
+            if (currentproduct != null && !string.IsNullOrEmpty(currentproduct.ProductPicture))
+            {
+                //delete old pic
+                var pic_info = _fileProvider.GetFileInfo(currentproduct.ProductPicture);
+                var root_path = pic_info.PhysicalPath;
+                System.IO.File.Delete($"{root_path}");
+
+                // Delete Database
+                _context.Products.Remove(currentproduct);
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            return false;
         }
     }
 }

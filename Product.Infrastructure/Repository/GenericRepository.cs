@@ -7,10 +7,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Product.Infrastructure.Data;
+using Product.Core.Entities;
 
 namespace Product.Infrastructure.Repository
 {
-    public class GenericRepository<T> : IGenericRepository<T> where T : class
+    public class GenericRepository<T> : IGenericRepository<T> where T : BasicEntity<int>
     {
         private readonly ApplicationDbContext _context;
         public GenericRepository(ApplicationDbContext context)
@@ -19,15 +20,22 @@ namespace Product.Infrastructure.Repository
         }
 
         public async Task AddAsync(T entity)
-        { 
-            await _context.Set<T>().AddAsync(entity);
-            await _context.SaveChangesAsync();
+        {
+            try
+            {
+                await _context.Set<T>().AddAsync(entity);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            { 
+            
+            }
         }
 
 
         public async Task DeleteAsync(int id)
         {
-            var entity = await _context.Set<T>().FindAsync();
+            var entity = await _context.Set<T>().FindAsync(id);
             _context.Set<T>().Remove(entity);
             await _context.SaveChangesAsync();
         }
@@ -41,7 +49,7 @@ namespace Product.Infrastructure.Repository
         public async Task<IReadOnlyList<T>> GetAllAsync()
         => await _context.Set<T>().AsNoTracking().ToListAsync();
 
-        public async Task<IEnumerable<T>> GetAllAsync(params Expression<Func<T, bool>>[] include)
+        public async Task<IEnumerable<T>> GetAllAsync(params Expression<Func<T, object>>[] include)
         {
             var query = _context.Set<T>().AsQueryable();
             foreach (var item in include)
@@ -60,12 +68,12 @@ namespace Product.Infrastructure.Repository
 
         public async Task<T> GetByIdAsync(int id, params Expression<Func<T, object>>[] includes)
         {
-            IQueryable<T> query = _context.Set<T>();
+            IQueryable<T> query = _context.Set<T>().Where(x => x.Id == id);
             foreach (var item in includes)
             { 
                 query = query.Include(item);
             }
-            return await ((DbSet<T>)query).FindAsync(id);
+            return await query.FirstOrDefaultAsync();
         }
 
         public async Task UpdateAsync(int id, T entity)
