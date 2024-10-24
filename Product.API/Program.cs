@@ -1,4 +1,5 @@
 using Microsoft.Extensions.FileProviders;
+using Product.API.Middleware;
 using Product.Infrastructure;
 using System.Reflection;
 
@@ -23,9 +24,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseStatusCodePagesWithReExecute("errors/{0}");
 app.UseHttpsRedirection();
-
+app.UseMiddleware<ExceptionMiddleware>();
 app.UseAuthorization();
 app.UseStaticFiles();
 app.MapControllers();

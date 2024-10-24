@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Product.API.Errors;
 using Product.Core.Entities;
 using Product.Core.Interface;
 using Product.Infrastructure.Data;
@@ -41,12 +42,15 @@ namespace Product.API.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("get-product-by-id/{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(BaseCommonResponse), StatusCodes.Status404NotFound)]
         public async Task<ActionResult> Get(int id)
         {
-            var res = await _uow.ProductRepository.GetByIdAsync(id);
-            //if (res == null)
-            //    return BadRequest($"沒有找到這個編號：[{id}]");
-            return Ok(_mapper.Map<ProductDto>(res));
+            var src = await _uow.ProductRepository.GetByIdAsync(id, x => x.Category);
+            if (src is null)
+                return NotFound(new BaseCommonResponse(404));
+            var result = _mapper.Map<ProductDto>(src);
+            return Ok(result);
         }
 
         /// <summary>
