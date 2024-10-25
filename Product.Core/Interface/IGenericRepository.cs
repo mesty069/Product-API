@@ -10,14 +10,18 @@ namespace Product.Core.Interface
     public interface IGenericRepository <T> where T : class
     {
         Task<IReadOnlyList<T>> GetAllAsync();
+
         IEnumerable<T> GetAll();
-        Task<IEnumerable<T>> GetAllAsync(params Expression<Func<T, object>>[] include);
-        IEnumerable<T> GetAll(params Expression<Func<T, bool>>[] includes);
+
+        Task<IEnumerable<T>> GetAllAsync(params Expression<Func<T, object>>[] includes);
+
         Task<T> GetByIdAsync(int id, params Expression<Func<T, object>>[] includes);
+
         Task<T> GetAsync(int id);
-        Task AddAsync(T entity);
-        Task UpdateAsync(int id, T entity);
+        Task AddAsync(T Entity);
         Task DeleteAsync(int id);
+        Task UpdateAsync(int id, T Entity);
+        Task<int> CountAsync();
 
     }
 }

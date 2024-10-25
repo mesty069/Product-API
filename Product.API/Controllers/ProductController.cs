@@ -2,8 +2,10 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Product.API.Errors;
+using Product.API.MyHelper;
 using Product.Core.Entities;
 using Product.Core.Interface;
+using Product.Core.Sharing;
 using Product.Infrastructure.Data;
 
 namespace Product.API.Controllers
@@ -24,16 +26,13 @@ namespace Product.API.Controllers
         /// 取得全部資料
         /// </summary>
         /// <returns></returns>
-        [HttpGet("get-all-product")]
-        public async Task<ActionResult> Get()
+        [HttpGet("get-all-products")]
+        public async Task<ActionResult> Get([FromQuery] ProductParams productParams)
         {
-            var res = await _uow.ProductRepository.GetAllAsync(x => x.Category);
-            if (res != null)
-            {
-                var result = _mapper.Map<List<ProductDto>>(res);
-                return Ok(result);
-            }
-            return BadRequest("沒有資料");
+            var src = await _uow.ProductRepository.GetAllAsync(productParams);
+            var result = _mapper.Map<IReadOnlyList<ProductDto>>(src.ProductDtos);
+
+            return Ok(new Pagination<ProductDto>(productParams.Pagesize, productParams.PageNumber, src.TotalItems, result));
         }
 
         /// <summary>
@@ -77,6 +76,13 @@ namespace Product.API.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        /// <summary>
+        /// 修改資料
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="productDto"></param>
+        /// <returns></returns>
         [HttpPut("update-exiting-product/{id}")]
         public async Task<ActionResult> Put(int id, [FromForm] UpdateProductDto productDto)
         {
@@ -96,6 +102,11 @@ namespace Product.API.Controllers
 
         }
 
+        /// <summary>
+        /// 刪除資料
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete("delete-exiting-product/{id}")]
         public async Task<ActionResult> Delete(int id)
         {

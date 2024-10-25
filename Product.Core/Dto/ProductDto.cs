@@ -29,6 +29,12 @@ namespace Product.Infrastructure.Data
         public int CategoryId { get; set; }
     }
 
+    public class ReturnProductDto
+    {
+        public int TotalItems { get; set; }
+        public List<ProductDto> ProductDtos { get; set; }
+    }
+
     public class CreateProductDto : BaseProduct
     { 
         public int Categoryid { get; set; }

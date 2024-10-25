@@ -6,7 +6,6 @@ namespace Product.API.Middleware
 {
     public class ExceptionMiddleware
     {
-        //Asp.Net Core 8 Web API :https://www.youtube.com/watch?v=UqegTYn2aKE&list=PLazvcyckcBwitbcbYveMdXlw8mqoBDbTT&index=1
 
         private readonly RequestDelegate _next;
         private readonly ILogger<ExceptionMiddleware> _logger;
@@ -18,6 +17,12 @@ namespace Product.API.Middleware
             _logger = logger;
             _hostEnvironment = hostEnvironment;
         }
+
+        /// <summary>
+        /// 錯誤處理
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
         public async Task InvokeAsync(HttpContext context)
         {
             try

@@ -7,9 +7,13 @@ namespace Product.API.Extensions
 {
     public static class APIRequestration
     {
+        /// <summary>
+        /// 註冊 API 服務，包括 AutoMapper、檔案提供者、模型驗證錯誤回應處理，以及 CORS 支援配置。
+        /// </summary>
+        /// <param name="services"></param>
+        /// <returns></returns>
         public static IServiceCollection AddApiReguestration(this IServiceCollection services)
         {
-            //Asp.Net Core 8 Web API :https://www.youtube.com/watch?v=UqegTYn2aKE&list=PLazvcyckcBwitbcbYveMdXlw8mqoBDbTT&index=1
 
             // AutoMapper
             services.AddAutoMapper(Assembly.GetExecutingAssembly());

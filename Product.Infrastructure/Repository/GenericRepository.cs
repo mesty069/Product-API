@@ -19,6 +19,11 @@ namespace Product.Infrastructure.Repository
             _context = context;
         }
 
+        /// <summary>
+        /// 新增
+        /// </summary>
+        /// <param name="entity"></param>
+        /// <returns></returns>
         public async Task AddAsync(T entity)
         {
             try
@@ -32,7 +37,18 @@ namespace Product.Infrastructure.Repository
             }
         }
 
+        /// <summary>
+        /// 資料數量
+        /// </summary>
+        /// <returns></returns>
+        public async Task<int> CountAsync()
+         => await _context.Set<T>().CountAsync();
 
+        /// <summary>
+        /// 刪除資料
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task DeleteAsync(int id)
         {
             var entity = await _context.Set<T>().FindAsync(id);
@@ -40,12 +56,20 @@ namespace Product.Infrastructure.Repository
             await _context.SaveChangesAsync();
         }
 
+        /// <summary>
+        /// 取得全部
+        /// </summary>
+        /// <returns></returns>
         public IEnumerable<T> GetAll()
             => _context.Set<T>().AsNoTracking().ToList();
 
         public IEnumerable<T> GetAll(params Expression<Func<T, bool>>[] includes)
             => _context.Set<T>().AsNoTracking().ToList();
 
+        /// <summary>
+        /// 非同步取得所有資料
+        /// </summary>
+        /// <returns></returns>
         public async Task<IReadOnlyList<T>> GetAllAsync()
         => await _context.Set<T>().AsNoTracking().ToListAsync();
 
@@ -59,13 +83,23 @@ namespace Product.Infrastructure.Repository
             return await query.ToListAsync();
         }
 
+        /// <summary>
+        /// 取得指定資料
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         public async Task<T> GetAsync(T id)
             => await _context.Set<T>().FindAsync(id);
 
         public async Task<T> GetAsync(int id)
             => await _context.Set<T>().FindAsync(id);
 
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="includes"></param>
+        /// <returns></returns>
         public async Task<T> GetByIdAsync(int id, params Expression<Func<T, object>>[] includes)
         {
             IQueryable<T> query = _context.Set<T>().Where(x => x.Id == id);
@@ -75,6 +109,7 @@ namespace Product.Infrastructure.Repository
             }
             return await query.FirstOrDefaultAsync();
         }
+
 
         public async Task UpdateAsync(int id, T entity)
         {

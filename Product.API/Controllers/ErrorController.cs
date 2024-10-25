@@ -9,6 +9,11 @@ namespace Product.API.Controllers
     [ApiExplorerSettings(IgnoreApi = true)]
     public class ErrorController : ControllerBase
     {
+        /// <summary>
+        /// 根據狀態碼返回錯誤資訊的
+        /// </summary>
+        /// <param name="statusCode"></param>
+        /// <returns></returns>
         [HttpGet("Error")]
         public IActionResult Error(int statusCode)
         {
