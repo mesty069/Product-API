@@ -42,28 +42,28 @@ namespace Product.Infrastructure.Data.migration
                 keyColumn: "Id",
                 keyValue: 1,
                 columns: new[] { "Description", "Name", "Price", "ProductPicture" },
-                values: new object[] { "Description 1", "Product 1", 100m, "https://" });
+                values: new object[] { "描述 1", "商品 1", 100m, "https://" });
 
             migrationBuilder.UpdateData(
                 table: "Products",
                 keyColumn: "Id",
                 keyValue: 2,
                 columns: new[] { "Description", "Name", "Price", "ProductPicture" },
-                values: new object[] { "Description 2", "Product 2", 300m, "https://" });
+                values: new object[] { "描述 2", "商品 2", 300m, "https://" });
 
             migrationBuilder.UpdateData(
                 table: "Products",
                 keyColumn: "Id",
                 keyValue: 3,
                 columns: new[] { "Description", "Name", "Price", "ProductPicture" },
-                values: new object[] { "Description 3", "Product 3", 500m, "https://" });
+                values: new object[] { "描述 3", "商品 3", 500m, "https://" });
 
             migrationBuilder.UpdateData(
                 table: "Products",
                 keyColumn: "Id",
                 keyValue: 4,
                 columns: new[] { "Description", "Name", "Price", "ProductPicture" },
-                values: new object[] { "Description 4", "Product 4", 900m, "https://" });
+                values: new object[] { "描述 4", "商品 4", 900m, "https://" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_Products_CategoryId",

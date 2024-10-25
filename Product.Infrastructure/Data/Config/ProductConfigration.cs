@@ -21,10 +21,10 @@ namespace Product.Infrastructure.Data.Config
 
             //Seeding 
             builder.HasData(
-                new Products { Id = 1, Name = "Product 1", Description = "Description 1", Price = 100, CategoryId = 1, ProductPicture = "https://" },
-                new Products { Id = 2, Name = "Product 2", Description = "Description 2", Price = 300, CategoryId = 1, ProductPicture = "https://" },
-                new Products { Id = 3, Name = "Product 3", Description = "Description 3", Price = 500, CategoryId = 3, ProductPicture = "https://" },
-                new Products { Id = 4, Name = "Product 4", Description = "Description 4", Price = 900, CategoryId = 2, ProductPicture = "https://" }
+                new Products { Id = 1, Name = "商品 1", Description = "描述 1", Price = 100, CategoryId = 1, ProductPicture = "https://" },
+                new Products { Id = 2, Name = "商品 2", Description = "描述 2", Price = 300, CategoryId = 1, ProductPicture = "https://" },
+                new Products { Id = 3, Name = "商品 3", Description = "描述 3", Price = 500, CategoryId = 3, ProductPicture = "https://" },
+                new Products { Id = 4, Name = "商品 4", Description = "描述 4", Price = 900, CategoryId = 2, ProductPicture = "https://" }
                 );
         }
     }
