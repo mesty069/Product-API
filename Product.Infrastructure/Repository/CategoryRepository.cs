@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace Product.Infrastructure.Repository
 {
-    public class CategoryRespository : GenericRepository<Category>, IcategoryRespository
+    public class CategoryRepository : GenericRepository<Category>, IcategoryRespository
     {
-        public CategoryRespository(ApplicationDbContext context) : base(context)
+        public CategoryRepository(ApplicationDbContext context) : base(context)
         {
         }
     }

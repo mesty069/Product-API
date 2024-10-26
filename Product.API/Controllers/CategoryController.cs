@@ -31,9 +31,9 @@ namespace Product.API.Controllers
             if (all_category != null)
             {
                 var res = _mapper.Map<IReadOnlyList<Category>, IReadOnlyList<ListCategoryDto>>(all_category);
-                return Ok(all_category);
+                return Ok(res);
             }
-            return BadRequest("沒有資料");
+            return BadRequest("Not Found");
         }
 
         /// <summary>

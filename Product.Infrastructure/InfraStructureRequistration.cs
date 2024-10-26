@@ -1,9 +1,15 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using Product.Core.Entities;
 using Product.Core.Interface;
 using Product.Infrastructure.Data;
+using Product.Infrastructure.Data.Config;
 using Product.Infrastructure.Repository;
 using System;
 using System.Collections.Generic;
@@ -15,17 +21,60 @@ namespace Product.Infrastructure
 {
     public static class InfraStructureRequistration
     {
-        public static IServiceCollection InfraStructureConfigration (this IServiceCollection services, IConfiguration configuration) 
+        /// <summary>
+        /// 設定應用程式的基礎架構配置，包括服務註冊和身份驗證設置
+        /// </summary>
+        /// <param name="services"></param>
+        /// <param name="configuration"></param>
+        /// <returns></returns>
+        public static IServiceCollection InfraStructureConfigration(this IServiceCollection services, IConfiguration configuration)
         {
+            // 註冊通用存儲庫
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
-            //  services.AddScoped<ICategoryRepository, CategoryRepository>();
-            // services.AddScoped<IProductRepository, ProductRepository>();
+            // 註冊單元工作模式
             services.AddScoped<IUnitOfWork, UnitOfWork>();
+            // 配置資料庫上下文
             services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(configuration.GetConnectionString("DefualtConnection"))
             );
-
+            // 註冊Token服務
+            services.AddScoped<ITokenServices, TokenServices>();
+            // 設定身份驗證
+            services.AddIdentity<AppUsers, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
+            // 註冊內存快取
+            services.AddMemoryCache();
+            // 設置 JWT 身份驗證
+            services.AddAuthentication(opt =>
+            {
+                opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(opt =>
+            {
+                opt.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Token:Key"])),
+                    ValidIssuer = configuration["Token:Issuer"],
+                    ValidateIssuer = true,
+                    ValidateAudience = false
+                };
+            });
             return services;
+        }
+
+        /// <summary>
+        /// 設置基礎架構中間件，並進行用戶種子數據的初始化。
+        /// </summary>
+        /// <param name="app"></param>
+        public static async void InfrastructureConfigMiddleware(IApplicationBuilder app)
+        {
+            using (var scope = app.ApplicationServices.CreateScope())
+            {
+                var userManger = scope.ServiceProvider.GetRequiredService<UserManager<AppUsers>>();
+                await IdentitySeed.SeedUserAsync(userManger);
+            }
         }
     }
 }

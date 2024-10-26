@@ -15,6 +15,10 @@ namespace Product.API.Controllers
             _context = context;
         }
 
+        /// <summary>
+        /// 沒有找到產品錯誤
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("not-found")]
         public ActionResult GetNotFound()
         {
@@ -26,6 +30,10 @@ namespace Product.API.Controllers
             return Ok(product);
         }
 
+        /// <summary>
+        /// 取得伺服器錯誤
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("Server-error")]
         public ActionResult GetServerError()
         {
@@ -34,6 +42,10 @@ namespace Product.API.Controllers
             return Ok();
         }
 
+        /// <summary>
+        /// 取得錯誤請求
+        /// </summary>
+        /// <returns></returns>
         [HttpGet("Bad-Request/{id}")]
         public ActionResult GetNotFoundRequest()
 
@@ -47,7 +59,5 @@ namespace Product.API.Controllers
         {
             return BadRequest();
         }
-
-
     }
 }
